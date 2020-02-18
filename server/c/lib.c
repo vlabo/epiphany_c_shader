@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <e-hal.h>
+#include <stdbool.h>
 
 #include "shared.h"
 
@@ -29,13 +30,15 @@ void epiphany_free(char* image_data) {
 void get_frame(char* image_data) {
     e_platform_t platform;
     e_epiphany_t dev;
+    
+	uint32_t size = m_width * m_height * 4;
 
     e_mem_t mem;
     e_alloc(&mem, A_IMAGE, size);
     e_mem_t image_size;
     e_alloc(&image_size, A_IMAGE_SIZE, sizeof(uint32_t) * 2);
-    e_write(&image_size, 0, 0, 0x0, &width, sizeof(uint32_t));
-    e_write(&image_size, 0, 0, 0x4, &height, sizeof(uint32_t));
+    e_write(&image_size, 0, 0, 0x0, &m_width, sizeof(uint32_t));
+    e_write(&image_size, 0, 0, 0x4, &m_height, sizeof(uint32_t));
 
     e_reset_system();
     e_get_platform_info(&platform);
@@ -64,7 +67,6 @@ void get_frame(char* image_data) {
             for(int col = 0; col < COLS_COUNT; col++) {
                 bool is_done = false;
                 if(e_read(&dev, row, col, A_IS_READY, &is_done, sizeof(bool)) != sizeof(bool)) {
-                    fprintf(stderr, "Faild to read\n");
                 }
 
                 if(!is_done) {

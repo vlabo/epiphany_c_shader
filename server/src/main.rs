@@ -70,7 +70,8 @@ fn compile_code(code: &str) {
 fn main() {
     let sleep_time = time::Duration::from_millis(100);
 
-    if let Ok(listener) = TcpListener::bind("127.0.0.1:34254") {
+    //if let Ok(listener) = TcpListener::bind("127.0.0.1:34254") {
+    if let Ok(listener) = TcpListener::bind("192.168.0.106:34254") {
         loop {
             
             for stream in listener.incoming() {

@@ -4,8 +4,12 @@ fn main() {
       .flag("-std=c99")
       .flag("-O3")
       .flag("-L /opt/adapteva/esdk/tools/host/lib")
-      .flag("-I /opt/adapteva/esdk/tools/host/include")
-      .flag("-I c")
-      .flag("-le-hal").flag("-le-loader")
+      .include("/opt/adapteva/esdk/tools/host/include")
+      .include("./c")
       .compile("lib");
+
+
+	println!("cargo:rustc-flags=-L /opt/adapteva/esdk/tools/host/lib");
+	println!("cargo:rustc-flags=-le-hal");
+	println!("cargo:rustc-flags=-le-loader");
 }
