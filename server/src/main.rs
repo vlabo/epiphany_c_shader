@@ -3,9 +3,9 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::{thread, time};
-use std::mem;
 use epiphany::Epiphany;
 use common::*;
+use std::process::Command;
 
 fn handle_client(mut stream: TcpStream) {
     let mut epiphany = Epiphany::new(0, 0);
@@ -63,19 +63,21 @@ fn send_frame(stream: &mut TcpStream, epiphany: &mut Epiphany) -> std::io::Resul
 }
 
 fn compile_code(code: &str) {
-    let mut file = File::create("epiphany.c").expect("Failed to create file");
-    file.write_all(code.as_bytes()).expect("Failed to write to file");
+	let mut template = include_str!("../e_template.c");
+	let full_code = template.replace("<!--shader-->", code);
 
-    Command::new("sh")
+    let mut file = File::create("epiphany.c").expect("Failed to create file");
+    file.write_all(full_code.as_bytes()).expect("Failed to write to file");
+	let command = "e-gcc -T /opt/adapteva/esdk/bsps/current/internal.ldf -I ./c epiphany.c -o e_main.elf -le-lib -lm";
+    let output = Command::new("sh")
             .arg("-c")
-            .arg("e-gcc")
-            .arg("-T /opt/adapteva/esdk/bsps/current/internal.ldf")
-            .arg("-I ./c")
-            .arg("-le-lib -lm")
-            .arg("e_template.c")
-            .arg("-o e_main.elf")
+            .arg(&command)
             .output()
-            .expect("failed to execute process")
+            .expect("failed to execute process"); 
+
+	if !output.status.success() { 
+		println!("{:?}", output);
+	}
 }
 
 fn main() {

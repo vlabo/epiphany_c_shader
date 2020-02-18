@@ -10,13 +10,13 @@ volatile bool* done              = (void*) A_IS_READY;
 
 volatile uint32_t*      p_width         = (void*) (A_BASE + A_WIDTH);
 volatile uint32_t*      p_height        = (void*) (A_BASE + A_HEIGHT);
-volatile uint32_t*  p_image             = (void*) (A_BASE + A_IMAGE);
+volatile uint32_t* 		p_image         = (void*) (A_BASE + A_IMAGE);
 
-uint32_t get_pixel(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+uint32_t shader(float x, float y, float width, float height);
 
 int main(void) {
         e_coreid_t coreid = e_get_coreid();
-    unsigned int row, col;
+	    unsigned int row, col;
         e_coords_from_coreid(coreid, &row, &col);
 
         uint32_t frame_width = *p_width;
@@ -32,7 +32,7 @@ int main(void) {
                         size_t index = x + startX + (y + startY) * frame_width;
                         uint32_t real_x = (x + startX);
                         uint32_t real_y = (y + startY);
-                        p_image[index] = get_pixel(real_x, real_y, frame_width, frame_height);
+                        p_image[index] = shader(real_x, real_y, frame_width, frame_height);
                 }
         }
 
@@ -40,13 +40,4 @@ int main(void) {
         return EXIT_SUCCESS;
 }
 
-uint32_t get_pixel(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
-
-        uint32_t value = ((x / width) + (y / height)) * 255.0f / 2.0f;
-        value %= 255;
-        int a = 0xFF  << 24;
-        int b = value << 16;
-        int g = value << 8;
-        int r = value;
-        return r | g | b | a;
-}
+<!--shader-->

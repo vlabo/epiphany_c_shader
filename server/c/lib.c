@@ -33,8 +33,8 @@ void get_frame(char* image_data) {
     
 	uint32_t size = m_width * m_height * 4;
 
-    e_mem_t mem;
-    e_alloc(&mem, A_IMAGE, size);
+    e_mem_t image_mem;
+    e_alloc(&image_mem, A_IMAGE, size);
     e_mem_t image_size;
     e_alloc(&image_size, A_IMAGE_SIZE, sizeof(uint32_t) * 2);
     e_write(&image_size, 0, 0, 0x0, &m_width, sizeof(uint32_t));
@@ -46,12 +46,11 @@ void get_frame(char* image_data) {
     e_reset_group(&dev);
     e_load_group("e_main.elf", &dev, 0, 0, ROWS_COUNT, COLS_COUNT, E_FALSE);
 
-    bool done[16];
-    memset(done, false, sizeof(done));
+	bool not_done = false;
     // Set "done" flags
     for(int row = 0; row < ROWS_COUNT; row++) {
         for(int col = 0; col < COLS_COUNT; col++) {
-            e_write(&dev, row, col, A_IS_READY, &done[row + col * COLS_COUNT], sizeof(bool));
+            e_write(&dev, row, col, A_IS_READY, &not_done, sizeof(bool));
         }
     }
 
@@ -77,5 +76,6 @@ void get_frame(char* image_data) {
     }
 
     // Done executing, get the image from memory
-    e_read(&mem, 0, 0, 0, image_data, size);
+    e_read(&image_mem, 0, 0, 0, image_data, size);
+//	memset(image_data, 255, size);
 }
