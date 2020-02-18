@@ -9,7 +9,7 @@ use std::env;
 use std::io::{Result, Error, ErrorKind};
 
 lazy_static! {
-    static ref CONFIG : Mutex<Config> = Mutex::new(Config{width: 800, height: 600});
+    static ref CONFIG : Mutex<Config> = Mutex::new(Config{width: 800, height: 800});
 }
 
 fn main() {
