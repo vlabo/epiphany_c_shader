@@ -8,6 +8,9 @@
 int m_width = 0;
 int m_height = 0;
 
+extern int usleep(int);
+extern int e_load_group(const char*, e_epiphany_t*, unsigned, unsigned, unsigned, unsigned, e_bool_t);
+
 void epiphany_init() {
     e_init(NULL);
 }

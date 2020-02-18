@@ -30,7 +30,6 @@ fn process_command(command: u8, stream: &mut TcpStream, epiphany: &mut Epiphany)
             let mut byte_array = [0; 16];
             if let Ok(()) = stream.read_exact(&mut byte_array) {
                 let config = Config::from_bytes(byte_array);
-                println!("Config received {}x{}", config.width, config.height);
                 epiphany.configure(config.width, config.height);
             }
 
@@ -45,7 +44,7 @@ fn process_command(command: u8, stream: &mut TcpStream, epiphany: &mut Epiphany)
                     panic!("Failed to receive code. {}", e);
                 }
                 let code = std::str::from_utf8(&code_vec).unwrap();
-                compile_code(code);
+                compile_code(stream, code);
             }
         }
         _ => {
@@ -62,13 +61,13 @@ fn send_frame(stream: &mut TcpStream, epiphany: &mut Epiphany) -> std::io::Resul
     Ok(())
 }
 
-fn compile_code(code: &str) {
-	let mut template = include_str!("../e_template.c");
+fn compile_code(stream: &mut TcpStream, code: &str) {
+	let template = include_str!("../e_template.c");
 	let full_code = template.replace("<!--shader-->", code);
 
     let mut file = File::create("epiphany.c").expect("Failed to create file");
     file.write_all(full_code.as_bytes()).expect("Failed to write to file");
-	let command = "e-gcc -T /opt/adapteva/esdk/bsps/current/internal.ldf -I ./c epiphany.c -o e_main.elf -le-lib -lm";
+	let command = "e-gcc -O3 -T /opt/adapteva/esdk/bsps/current/internal.ldf -I ./c epiphany.c -o e_main.elf -le-lib -lm";
     let output = Command::new("sh")
             .arg("-c")
             .arg(&command)
@@ -76,8 +75,17 @@ fn compile_code(code: &str) {
             .expect("failed to execute process"); 
 
 	if !output.status.success() { 
-		println!("{:?}", output);
+		let error = std::str::from_utf8(&output.stderr).unwrap();
+		let length_str = format!("{:08}", error.len());
+		let response_code = [SERVER_COMPILE_ERROR];
+		stream.write(&response_code).expect("Faild to send error response code");
+		stream.write(length_str.as_bytes()).expect("Failed to send error lenght");
+		stream.write(error.as_bytes()).expect("Failed to send error");	
+	} else {
+		let response_code = [SERVER_COMPILE_COMPLETE];
+		stream.write(&response_code).expect("Faild to send error response code");
 	}
+	
 }
 
 fn main() {
