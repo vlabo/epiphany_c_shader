@@ -1,4 +1,6 @@
 extern "C" {
+    fn epiphany_init();
+    fn epiphany_destroy();
     fn epiphany_alloc(width: u32, height: u32) -> *mut u8;
     fn epiphany_free(image_data: *mut u8);
     fn get_frame(image_data: *mut u8);
@@ -12,6 +14,7 @@ pub struct Epiphany {
 
 impl Epiphany {
     pub fn new(width: u32, height: u32) -> Self {
+        unsafe { epiphany_init() };
         let image_data = if width > 0 && height > 0 {
             unsafe { epiphany_alloc(width, height) }
         } else {
@@ -56,6 +59,7 @@ impl Drop for Epiphany {
     fn drop(&mut self) {
         unsafe {
             epiphany_free(self.image_data);
+            epiphany_destroy();
         }
     }
 }
