@@ -1,0 +1,13 @@
+[package]
+name = "common"
+version = "0.1.0"
+authors = ["vlabo <vladdocan@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num-traits = "0.2"
+num-derive = "0.3"
+bincode = "1.2.1"
+serde = { version = "1.0", features = ["derive"] }
