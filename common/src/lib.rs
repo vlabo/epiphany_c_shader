@@ -3,6 +3,8 @@ pub const VIEWER_CONFIG : u8 = 2;
 pub const VIEWER_FRAME_REQUEST : u8 = 3;
 
 pub const SERVER_FRAME : u8 = 1;
+pub const SERVER_COMPILE_ERROR : u8 = 2;
+pub const SERVER_COMPILE_COMPLETE : u8 = 3;
 
 pub struct Config {
     pub width: u32,
