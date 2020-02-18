@@ -36,12 +36,10 @@ fn process_command(command: u8, stream: &mut TcpStream, epiphany: &mut Epiphany)
 
         },
         VIEWER_CODE => {
-            let mut byte_array = [0; mem::size_of::<usize>()];
+            let mut byte_array = [0; 8];
             if let Ok(()) = stream.read_exact(&mut byte_array) {
                 let size_str = std::str::from_utf8(&byte_array).unwrap();
-                println!("{}", size_str);
                 let size = size_str.parse::<usize>().unwrap();
-                println!("{}", size);
                 let mut code_vec = vec![0; size];
                 if let Err(e) = stream.read_exact(&mut code_vec) {
                     panic!("Failed to receive code. {}", e);

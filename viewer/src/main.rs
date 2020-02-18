@@ -12,7 +12,8 @@ lazy_static! {
 }
 
 fn main() {
-    if let Ok(mut stream) = TcpStream::connect("127.0.0.1:34254") {//connect("192.168.0.106:34254") {
+    if let Ok(mut stream) = TcpStream::connect("192.168.0.106:34254") {
+    //if let Ok(mut stream) = TcpStream::connect("127.0.0.1:34254") {
         println!("Connected to server");
         let sleep_time = time::Duration::from_millis(1000);
         if let Ok(_) = send_config(&mut stream) {
