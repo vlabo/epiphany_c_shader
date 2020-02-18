@@ -3,17 +3,16 @@ use std::fs::File;
 use std::net::TcpStream;
 use std::{thread, time};
 use common::*;
-use num_traits::{ToPrimitive, FromPrimitive};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::env;
 
 lazy_static! {
-    static ref CONFIG : Mutex<Config> = Mutex::new(Config{width: 1000, height: 1000});
+    static ref CONFIG : Mutex<Config> = Mutex::new(Config{width: 10, height: 10});
 }
 
 fn main() {
-    if let Ok(mut stream) = TcpStream::connect("127.0.0.1:34254") {
+    if let Ok(mut stream) = TcpStream::connect("127.0.0.1:34254") {//connect("192.168.0.106:34254") {
         println!("Connected to server");
         let sleep_time = time::Duration::from_millis(1000);
         if let Ok(_) = send_config(&mut stream) {
@@ -32,19 +31,19 @@ fn main() {
 }
 
 fn send_config(stream: &mut TcpStream) -> std::io::Result<()> {
-    let command = ToPrimitive::to_u8(&ViewerCommand::Config).unwrap();
+    let command = VIEWER_CONFIG; 
     stream.write(&[command])?;
-    let config_bytes = CONFIG.lock().unwrap().serialize();
-    stream.write(&config_bytes)?;
+    let config = CONFIG.lock().unwrap().to_str();
+    stream.write(config.as_bytes())?;
     Ok(())
 }
 
 fn request_frame(stream: &mut TcpStream) {
-    let command = ToPrimitive::to_u8(&ViewerCommand::FrameRequest).unwrap();
+    let command = VIEWER_FRAME_REQUEST; 
     stream.write(&[command]).expect("Failed to request a frame");
     let mut response = [0; 1];
     if let Ok(()) = stream.read_exact(&mut response) {
-        if let Some(ServerCommand::Frame) = ServerCommand::from_u8(response[0]) {
+        if SERVER_FRAME == response[0] {
             let config = CONFIG.lock().unwrap();
             let bytes_count = config.get_bytes_count();
             let mut byte_array = vec![0; bytes_count];
@@ -70,9 +69,9 @@ fn send_code(stream: &mut TcpStream) {
     let mut code = String::new();
     file.read_to_string(&mut code).unwrap();
 
-    let command = ToPrimitive::to_u8(&ViewerCommand::Code).unwrap(); 
+    let command = VIEWER_CODE; 
     stream.write(&[command]).expect("Failed to send code command");
-    let size = code.len();
-    stream.write(&bincode::serialize(&size).unwrap()).expect("Failed to send code size.");
+    let size_str = format!("{:08}", code.len());
+    stream.write(size_str.as_bytes()).expect("Failed to send code size.");
     stream.write(code.as_bytes()).expect("Failed to send code ");
 }

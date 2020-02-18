@@ -3,43 +3,45 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::{thread, time};
-use common::*;
-use num_traits::{FromPrimitive, ToPrimitive};
 use std::mem;
 use epiphany::Epiphany;
+use common::*;
 
 fn handle_client(mut stream: TcpStream) {
     let mut epiphany = Epiphany::new(0, 0);
     loop {
         let mut data = [0; 1];
         if let Ok(()) = stream.read_exact(&mut data) {
-            process_command(FromPrimitive::from_u8(data[0]).unwrap(), &mut stream, &mut epiphany);
+            process_command(data[0], &mut stream, &mut epiphany);
         } else {
             return;
         }
     } 
 }
 
-fn process_command(command: ViewerCommand, stream: &mut TcpStream, epiphany: &mut Epiphany) {
+fn process_command(command: u8, stream: &mut TcpStream, epiphany: &mut Epiphany) {
     match command {
-        ViewerCommand::FrameRequest => {
+        VIEWER_FRAME_REQUEST => {
             if let Err(e) = send_frame(stream, epiphany) {
                 println!("Failed to send frame. {}", e);
             }
         },
-        ViewerCommand::Config => {
-            let mut byte_array = [0; mem::size_of::<Config>()];
+        VIEWER_CONFIG => {
+            let mut byte_array = [0; 16];
             if let Ok(()) = stream.read_exact(&mut byte_array) {
-                let config : Config = bincode::deserialize(&byte_array).unwrap();
+                let config = Config::from_bytes(byte_array);
                 println!("Config received {}x{}", config.width, config.height);
                 epiphany.configure(config.width, config.height);
             }
 
         },
-        ViewerCommand::Code => {
+        VIEWER_CODE => {
             let mut byte_array = [0; mem::size_of::<usize>()];
             if let Ok(()) = stream.read_exact(&mut byte_array) {
-                let size : usize = bincode::deserialize(&byte_array).unwrap();
+                let size_str = std::str::from_utf8(&byte_array).unwrap();
+                println!("{}", size_str);
+                let size = size_str.parse::<usize>().unwrap();
+                println!("{}", size);
                 let mut code_vec = vec![0; size];
                 if let Err(e) = stream.read_exact(&mut code_vec) {
                     panic!("Failed to receive code. {}", e);
@@ -56,7 +58,7 @@ fn process_command(command: ViewerCommand, stream: &mut TcpStream, epiphany: &mu
 
 fn send_frame(stream: &mut TcpStream, epiphany: &mut Epiphany) -> std::io::Result<()> {
     epiphany.update_frame();
-    let command = ServerCommand::Frame.to_u8().unwrap();
+    let command = SERVER_FRAME; 
     stream.write(&[command])?;
     stream.write(epiphany.get_data())?;
     Ok(())

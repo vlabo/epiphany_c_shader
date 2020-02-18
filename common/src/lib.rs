@@ -1,24 +1,9 @@
-#[macro_use]
-extern crate num_derive;
+pub const VIEWER_CODE : u8 = 1;
+pub const VIEWER_CONFIG : u8 = 2;
+pub const VIEWER_FRAME_REQUEST : u8 = 3;
 
-use serde::{Serialize, Deserialize};
+pub const SERVER_FRAME : u8 = 1;
 
-
-#[derive(FromPrimitive, ToPrimitive)]
-pub enum ViewerCommand {
-    Code = 1,
-    Config,
-    Stop,
-    FrameRequest,
-}
-
-#[derive(FromPrimitive, ToPrimitive)]
-pub enum ServerCommand {
-    Frame = 1,
-    Error,
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub width: u32,
     pub height: u32,
@@ -29,7 +14,17 @@ impl Config {
         return (self.width * self.height * 4) as usize;
     }
 
-    pub fn serialize(&self) -> Vec<u8> {
-        bincode::serialize(self).unwrap()
+    pub fn from_bytes(bytes: [u8; 16]) -> Self {
+        let width_str = std::str::from_utf8(&bytes[0..8]).unwrap();
+        let height_str = std::str::from_utf8(&bytes[8..]).unwrap();
+
+        Config {
+            width: width_str.parse::<u32>().unwrap(),
+            height: height_str.parse::<u32>().unwrap(),
+        }
+    } 
+
+    pub fn to_str(&self) -> String {
+        format!("{:08}{:08}", self.width, self.height)
     }
 }

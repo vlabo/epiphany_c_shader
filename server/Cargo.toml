@@ -8,8 +8,6 @@ edition = "2018"
 
 [dependencies]
 common = { path = "../common" }
-num-traits = "0.2"
-bincode = "1.2.1"
 lazy_static = "1.4.0"
 
 [build-dependencies]
