@@ -5,7 +5,7 @@
 #define TAU 6.283185
 
 // play with this value (try 3)
-#define SIDES 3
+#define SIDES 8
 
 // uncomment to see that the polygon lies within the unit circle.
 //#define UCIRCLE
