@@ -67,7 +67,7 @@ fn compile_code(stream: &mut TcpStream, code: &str) {
 
     let mut file = File::create("epiphany.c").expect("Failed to create file");
     file.write_all(full_code.as_bytes()).expect("Failed to write to file");
-	let command = "e-gcc -O3 -T /opt/adapteva/esdk/bsps/current/internal.ldf -I ./c epiphany.c -o e_main.elf -le-lib -lm";
+	let command = "e-g++ -std=c++11 -O3 -T /opt/adapteva/esdk/bsps/current/internal.ldf -I ./c epiphany.c -o e_main.elf -le-lib -lm";
     let output = Command::new("sh")
             .arg("-c")
             .arg(&command)
