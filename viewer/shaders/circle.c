@@ -2,8 +2,7 @@ vec4 circle(vec2 uv, vec2 pos, float rad, vec3 color) {
     vec2 relative = { pos.x - uv.x, pos.y - uv.y};
 	float d = length(relative) - rad;
 	float t = clamp(d, 0.0f, 1.0f);
-    vec4 result = {color.x, color.y, color.z, 1.0f - t};
-	return result;
+    return vec4{color.x, color.y, color.z, 1.0f - t};
 }
 
 vec4 shader(float x, float y, float width, float height) {

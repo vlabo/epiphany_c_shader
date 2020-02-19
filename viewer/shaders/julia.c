@@ -11,9 +11,9 @@ vec4 shader(float x, float y, float width, float height) {
 	vec2 uv = vec2{x - width * 0.5f, y - height * 0.5f};
 	uv = (uv * 2.5f) / min( width, height );
 	
-	vec2 c = uv;
-	vec2 v = vec2f( 0.0 );
-	float scale = 0.06;
+	vec2 c = vec2{ 0.285, 0.01 };
+	vec2 v = uv;
+	float scale = 0.01;
 	
 	int count = max_iterations;
 	
