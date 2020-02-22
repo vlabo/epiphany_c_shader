@@ -25,3 +25,5 @@ This is a small test server client application with witch you can send small **c
  5. `cargo run --release shaders/gradient.c`
 
 > It should work on any platform that **rust** it supported.
+
+## [Showcase](images/Showcase.md)
