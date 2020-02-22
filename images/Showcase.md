@@ -2,7 +2,7 @@
 
 ## Gradient
 
-![Gradient](gradinet.png)
+![Gradient](gradient.png)
 
 ## Circle
 
@@ -22,7 +22,7 @@
 
 ## Sierpinski Polygon
 
-![Sierpinski Polygon](sierpinski_triangle.png)
+![Sierpinski Polygon](sierpinski_polygon.png)
 
 ## Mandelbrot
 
